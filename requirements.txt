@@ -1,0 +1,2 @@
+platformdirs==4.3.6
+yt_dlp==2025.2.19
