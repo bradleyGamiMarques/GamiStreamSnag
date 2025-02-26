@@ -1,3 +1,21 @@
+"""
+GamiStreamSnag - A beautiful UI wrapper for the yt-dlp command line tool 
+Copyright (C) 2025 Bradley Andrew Marques
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see <https://www.gnu.org/licenses/>.
+"""
+
 import tkinter as tk
 from tkinter import ttk
 from tkinter import font
@@ -6,6 +24,7 @@ import os
 from yt_dlp import YoutubeDL
 
 from platformdirs import user_downloads_dir
+import yt_dlp
 
 
 class MainWindow(tk.Tk):
@@ -31,11 +50,21 @@ class MainWindow(tk.Tk):
         # Ensure the Downloads directory exists
         os.makedirs(downloads_dir, exist_ok=True)
 
+        # Get the URL from user input and append it to an array
         url: str = self.url_field_entry_str.get()
         urls: list[str] = []
         urls.append(url)
 
-        ydl_opts = {"outtmpl": os.path.join(downloads_dir, "%(title)s.%(ext)s")}
+        # Store the path to the FFmpeg binary in a variable
+        base_dir: str = os.path.dirname(os.path.abspath(__file__))
+        ffmpeg_path: str = os.path.abspath(
+            os.path.join(base_dir, "..", "bin", "ffmpeg")
+        )
+
+        ydl_opts: yt_dlp.YDLOpts = {
+            "outtmpl": os.path.join(downloads_dir, "%(title)s.%(ext)s"),
+            "ffmpeg_location": ffmpeg_path,
+        }
 
         with YoutubeDL(ydl_opts) as ydl:
             ydl.download(urls)
@@ -57,7 +86,7 @@ class MainWindow(tk.Tk):
         # Size of the application window
         self.geometry("600x400")
 
-        default_font = font.nametofont("TkDefaultFont")
+        default_font: font.Font = font.nametofont("TkDefaultFont")
         custom_font = font.Font(
             family=default_font.actual("family"), size=12, weight="bold"
         )
